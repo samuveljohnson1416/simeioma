@@ -59,6 +59,9 @@ public class NoteController {
 
             existingNote.setTitle(updatedNote.getTitle());
             existingNote.setContent(updatedNote.getContent());
+            existingNote.setLocation(updatedNote.getLocation());
+            existingNote.setLatitude(updatedNote.getLatitude());
+            existingNote.setLongitude(updatedNote.getLongitude());
 
             return repository.save(existingNote);
         }
