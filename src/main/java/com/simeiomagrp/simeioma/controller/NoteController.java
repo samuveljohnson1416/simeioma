@@ -10,7 +10,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/notes")
-@CrossOrigin(origins = "http://localhost:63342", allowCredentials = "true")
 public class NoteController {
 
     @Autowired

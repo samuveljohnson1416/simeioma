@@ -20,17 +20,43 @@ A full-stack notes application built with Spring Boot, HTML/CSS/JavaScript, and 
 
 ## Quick Start
 
-### Build
+### 1) Backend (Spring Boot)
+
+Build and run:
+
 ```bash
 .\mvnw.cmd clean package -DskipTests
-```
-
-### Run
-```bash
 java -jar target\simeioma-0.0.1-SNAPSHOT.jar
 ```
 
-Access at: `http://localhost:8080`
+Backend runs at: `http://localhost:8080`
+
+### 2) Frontend (Next.js)
+
+In a second terminal:
+
+```bash
+cd frontend
+npm install
+copy .env.example .env.local
+npm run dev
+```
+
+Frontend runs at: `http://localhost:3000`
+
+### 3) Cross-App Config
+
+The backend CORS origin is controlled by `src/main/resources/application.properties`:
+
+```properties
+app.frontend.url=http://localhost:3000
+```
+
+The frontend backend target is controlled by `frontend/.env.local`:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8080
+```
 
 ## API Endpoints
 
@@ -61,7 +87,7 @@ Access at: `http://localhost:8080`
 
 ## Configuration
 
-Edit `src/main/resources/application.properties` to change database or port.
+Edit `src/main/resources/application.properties` to change database, backend port, or frontend CORS origin.
 
 ## Troubleshooting
 
