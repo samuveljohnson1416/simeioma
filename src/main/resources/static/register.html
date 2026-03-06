@@ -89,19 +89,25 @@
             const response = await fetch("http://localhost:8080/users/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
+                credentials: "include",
                 body: JSON.stringify({ username, password })
             });
 
-            const result = await response.text();
-            alert(result);
+            const result = await response.text().then(text => text.trim());
+            console.log("Registration response:", result, "Status:", response.status);
 
-            if (result === "Registration Successful") {
+            if (result.includes("Registration Successful")) {
+                alert("Registration Successful! Redirecting to login...");
                 window.location.href = "login.html";
+            } else if (!response.ok) {
+                alert("Registration failed: " + result);
+            } else {
+                alert(result);
             }
 
         } catch (error) {
-            console.error("Error:", error);
-            alert("Something went wrong!");
+            console.error("Fetch error:", error);
+            alert("Connection error: " + error.message);
         }
     }
 </script>

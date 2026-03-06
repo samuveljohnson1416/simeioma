@@ -1,6 +1,8 @@
 package com.simeiomagrp.simeioma.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 @Table(name = "notes")
@@ -18,6 +20,19 @@ public class note {
 
     @Column(nullable = false)
     private String username;
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column
+    private Double latitude;
+
+    @Column
+    private Double longitude;
+
+    @Column
+    private String location;
 
    // Constructors
    public note() {}
@@ -55,5 +70,37 @@ public class note {
 
    public void setUsername(String username) {
        this.username = username;
+   }
+
+   public LocalDateTime getCreatedAt() {
+       return createdAt;
+   }
+
+   public void setCreatedAt(LocalDateTime createdAt) {
+       this.createdAt = createdAt;
+   }
+
+   public Double getLatitude() {
+       return latitude;
+   }
+
+   public void setLatitude(Double latitude) {
+       this.latitude = latitude;
+   }
+
+   public Double getLongitude() {
+       return longitude;
+   }
+
+   public void setLongitude(Double longitude) {
+       this.longitude = longitude;
+   }
+
+   public String getLocation() {
+       return location;
+   }
+
+   public void setLocation(String location) {
+       this.location = location;
    }
 }

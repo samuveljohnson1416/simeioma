@@ -9,7 +9,17 @@ public class HomeController {
 
     @GetMapping("/")
     public String home() {
-        return "redirect:/login.html";
+        return "forward:/login.html";
+    }
+
+    @GetMapping("/login")
+    public String login() {
+        return "forward:/login.html";
+    }
+
+    @GetMapping("/register")
+    public String register() {
+        return "forward:/register.html";
     }
 }
 

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Notes App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #43cea2, #185a9d);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        #noteList {
+            list-style: none;
+            padding: 0;
+            margin-top: 30px;
+        }
+        #noteList li {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        #noteList button {
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 class="mb-4">My Notes</h2>
+
+    <!-- Search Bar -->
+    <div class="form-group mb-3">
+        <input type="text" id="searchBox" class="form-control" placeholder="🔍 Search notes by title..." onkeyup="searchNotes()">
+    </div>
+
+    <div class="form-group">
+        <input type="text" id="title" class="form-control" placeholder="Title">
+    </div>
+
+    <div class="form-group">
+        <textarea id="content" class="form-control" rows="4" placeholder="Note Content"></textarea>
+    </div>
+
+    <button onclick="addNote()" class="btn btn-primary w-100">Add Note</button>
+
+    <h4 class="mt-5">Your Notes</h4>
+    <ul id="noteList"></ul>
+</div>
+
+<script>
+
+let allNotes = [];
+
+function loadNotes() {
+    fetch("http://localhost:8080/notes", {
+        credentials: "include"
+    })
+    .then(res => {
+        if (!res.ok) throw new Error("Failed to load notes");
+        return res.json();
+    })
+    .then(data => {
+        allNotes = data;
+        displayNotes(data);
+    })
+    .catch(error => {
+        console.error("Error loading notes:", error);
+        alert("Session expired. Please login again.");
+        window.location.href = "login.html";
+    });
+}
+
+function displayNotes(notes) {
+    const list = document.getElementById("noteList");
+    list.innerHTML = "";
+
+    if (notes.length === 0) {
+        list.innerHTML = "<li class='text-muted'>No notes yet. Create one!</li>";
+        return;
+    }
+
+    notes.forEach(note => {
+        const locationInfo = note.location ? `📍 ${note.location}` : '📍 Location not available';
+        list.innerHTML += `<li title="${locationInfo}">
+            <div>
+                <strong>${note.title}</strong><br>
+                <small>${note.content}</small><br>
+                <tiny class="text-muted">Created: ${new Date(note.createdAt).toLocaleString()}</tiny><br>
+                <tiny class="text-info" style="cursor: pointer;">📍 Hover for location</tiny>
+            </div>
+            <button class="btn btn-sm btn-danger" onclick="deleteNote(${note.id})">Delete</button>
+        </li>`;
+    });
+}
+
+function searchNotes() {
+    const searchQuery = document.getElementById("searchBox").value.toLowerCase();
+    
+    if (searchQuery === "") {
+        displayNotes(allNotes);
+        return;
+    }
+
+    const filteredNotes = allNotes.filter(note => 
+        note.title.toLowerCase().includes(searchQuery)
+    );
+
+    displayNotes(filteredNotes);
+}
+
+function addNote() {
+    const title = document.getElementById("title").value.trim();
+    const content = document.getElementById("content").value.trim();
+
+    if (!title || !content) {
+        alert("Please fill in both title and content");
+        return;
+    }
+
+    // Get geolocation
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+                const location = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+
+                const noteData = { title, content, latitude, longitude, location };
+
+                fetch("http://localhost:8080/notes", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    credentials: "include",
+                    body: JSON.stringify(noteData)
+                })
+                .then(res => {
+                    if (!res.ok) throw new Error("Failed to add note");
+                    return res.json();
+                })
+                .then(() => {
+                    document.getElementById("title").value = "";
+                    document.getElementById("content").value = "";
+                    loadNotes();
+                    alert("Note added successfully!");
+                })
+                .catch(error => {
+                    console.error("Error adding note:", error);
+                    alert("Failed to add note. Make sure you're logged in.");
+                });
+            },
+            (error) => {
+                console.log("Location not available:", error);
+                // Save without location if geolocation fails
+                const noteData = { title, content };
+
+                fetch("http://localhost:8080/notes", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    credentials: "include",
+                    body: JSON.stringify(noteData)
+                })
+                .then(res => {
+                    if (!res.ok) throw new Error("Failed to add note");
+                    return res.json();
+                })
+                .then(() => {
+                    document.getElementById("title").value = "";
+                    document.getElementById("content").value = "";
+                    loadNotes();
+                    alert("Note added successfully!");
+                })
+                .catch(error => {
+                    console.error("Error adding note:", error);
+                    alert("Failed to add note. Make sure you're logged in.");
+                });
+            }
+        );
+    }
+}
+
+function deleteNote(id) {
+    if (confirm("Are you sure you want to delete this note?")) {
+        fetch(`http://localhost:8080/notes/${id}`, {
+            method: "DELETE",
+            credentials: "include"
+        })
+        .then(res => {
+            if (!res.ok) throw new Error("Failed to delete note");
+            loadNotes();
+            alert("Note deleted!");
+        })
+        .catch(error => {
+            console.error("Error deleting note:", error);
+            alert("Failed to delete note.");
+        });
+    }
+}
+
+// Load notes when page loads
+loadNotes();
+
+</script>
+
+</body>
+</html>
