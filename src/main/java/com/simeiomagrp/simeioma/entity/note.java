@@ -14,14 +14,18 @@ public class note {
    private String title;
 
    @Column(nullable = false, columnDefinition = "TEXT")
-   private String description;
+    private String content;
+
+    @Column(nullable = false)
+    private String username;
 
    // Constructors
    public note() {}
 
-   public note(String title, String description) {
+   public note(String title, String content, String username) {
        this.title = title;
-       this.description = description;
+       this.content = content;
+       this.username = username;
    }
 
    // Getters & Setters
@@ -37,11 +41,19 @@ public class note {
        this.title = title;
    }
 
-   public String getDescription() {
-       return description;
+   public String getContent() {
+       return content;
    }
 
-   public void setDescription(String description) {
-       this.description = description;
+   public void setContent(String content) {
+       this.content = content;
+   }
+
+   public String getUsername() {
+       return username;
+   }
+
+   public void setUsername(String username) {
+       this.username = username;
    }
 }

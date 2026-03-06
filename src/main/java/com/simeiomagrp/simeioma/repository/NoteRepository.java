@@ -1,11 +1,11 @@
 package com.simeiomagrp.simeioma.repository;
 
-import com.notesapp.entity.Note;
+import com.simeiomagrp.simeioma.entity.note;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface NoteRepository extends JpaRepository<Note, Long> {
+public interface NoteRepository extends JpaRepository<note, Long> {
 
-    List<Note> findByUsername(String username);
+    List<note> findByUsername(String username);
 }
